@@ -169,7 +169,7 @@ class Message(object):
         self.error=False
         self.error_msg=[]
         self.lineno=fileinput.lineno()
-        p=re.compile('(RAW|RWA): ([^ ]*) ([\d.]+) (\d+) A:(\w+) [IL]:(\w+) +(\d+)% ([\d.]+|inf|nan) +(\d+) ([\[\]<> 01]+)(.*)')
+        p=re.compile('(RAW|RWA): ([^ ]*) ([\d.]+) (\d+) A:(\w+) [IqL]:(\w+) +(\d+)% ([\d.]+|inf|nan) ([\d.]+|inf|nan) ([\d.]+|inf|nan) +(\d+) ([\[\]<> 01]+)(.*)')
         m=p.match(line)
         if(errorfile != None):
             self.line=line
@@ -196,13 +196,15 @@ class Message(object):
 #        self.leadout_ok=(m.group(6)=="OK")
         self.confidence=int(m.group(7))
         self.level=float(m.group(8))
-#        self.raw_length=m.group(9)
-        self.bitstream_raw=(re.sub("[\[\]<> ]","",m.group(10))) # raw bitstring with correct symbols
+        self.magnitude=float(m.group(9))
+        self.power=float(m.group(10))
+#        self.raw_length=m.group(11)
+        self.bitstream_raw=(re.sub("[\[\]<> ]","",m.group(12))) # raw bitstring with correct symbols
         if self.swapped:
             self.bitstream_raw=symbol_reverse(self.bitstream_raw)
         self.symbols=len(self.bitstream_raw)/2
-        if m.group(11):
-            self.extra_data=m.group(11)
+        if m.group(13):
+            self.extra_data=m.group(13)
             self._new_error("There is crap at the end in extra_data")
         # Make a "global" timestamp
         global tswarning,tsoffset,maxts
